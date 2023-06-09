@@ -1,0 +1,11 @@
+# output
+*.pdf
+
+# node modules
+node_modules
+
+# puppeteer
+.cache
+
+# build files
+build

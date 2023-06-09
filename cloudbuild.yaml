@@ -1,0 +1,15 @@
+steps:
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - uspy-auth
+      - --region=us-east-1
+      - --source=.
+      - --memory=1024M
+      - --entry-point=handle
+      - --timeout=60s
+      - --trigger-http
+      - --runtime=nodejs18
+      - --no-allow-unauthenticated
