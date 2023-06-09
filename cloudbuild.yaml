@@ -5,7 +5,7 @@ steps:
       - functions
       - deploy
       - uspy-auth
-      - --region=us-east-1
+      - --region=us-east1
       - --source=.
       - --memory=1024M
       - --entry-point=handle
