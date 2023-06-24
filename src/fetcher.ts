@@ -20,6 +20,10 @@ export const fetchPDF = async (browser: Browser, code: string) => {
 
   await page.goto(`https://portalservicos.usp.br/iddigital/${code}`);
 
+  console.log('waiting for recaptcha token...');
+  await page.waitForSelector('[title="reCAPTCHA"]');
+
+  console.log('waiting for submit button...');
   const submitButton = await page.waitForSelector('[type="submit"]');
 
   if (submitButton) {
