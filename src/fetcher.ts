@@ -18,6 +18,7 @@ export const fetchPDF = async (browser: Browser, code: string) => {
     }
   });
 
+  console.log('waiting for page goto');
   await page.goto(`https://portalservicos.usp.br/iddigital/${code}`);
 
   console.log('waiting for recaptcha token...');
@@ -28,7 +29,15 @@ export const fetchPDF = async (browser: Browser, code: string) => {
 
   if (submitButton) {
     console.log('submitting form...');
-    await submitButton.click();
+    await submitButton
+      .click()
+      .then(() => {
+        console.log('form submitted');
+      })
+      .catch((e) => {
+        console.log('form submit failed');
+        throw e;
+      });
   } else {
     console.log('No submit button found');
     throw new Error('No submit button found');
@@ -40,7 +49,7 @@ export const fetchPDF = async (browser: Browser, code: string) => {
       (response) => {
         return response.url().endsWith(code);
       },
-      { timeout: 60000 }
+      { timeout: 5000 }
     )
     .then((response) => {
       if (response.status() !== 200) {
@@ -51,5 +60,9 @@ export const fetchPDF = async (browser: Browser, code: string) => {
 
       console.log('got pdf');
       return response.buffer();
+    })
+    .catch((e) => {
+      console.log('failed to fetch PDF');
+      throw e;
     });
 };
