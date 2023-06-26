@@ -1,6 +1,15 @@
 import { Browser } from 'puppeteer';
 
-export const fetchPDF = async (browser: Browser, code: string) => {
+type FetchPDFResponse = {
+  err: string | null;
+  status: number | null;
+  buffer?: Promise<Buffer>;
+};
+
+export const fetchPDF = async (
+  browser: Browser,
+  code: string
+): Promise<FetchPDFResponse> => {
   console.log('fetching pdf...');
   const page = await browser.newPage();
 
@@ -44,25 +53,42 @@ export const fetchPDF = async (browser: Browser, code: string) => {
   }
 
   // wait for the response to be set or timeout
-  return page
-    .waitForResponse(
-      (response) => {
-        return response.url().endsWith(code);
-      },
-      { timeout: 5000 }
-    )
-    .then((response) => {
-      if (response.status() !== 200) {
-        throw new Error(
-          `failed to fetch PDF... response status ${response.status()}`
-        );
-      }
+  return new Promise(async (resolve, reject) => {
+    return page
+      .waitForResponse(
+        (response) => {
+          return response.url().endsWith(code);
+        },
+        { timeout: 10000 }
+      )
+      .then((response) => {
+        if (!response) {
+          console.log('unknown error');
+          return reject({
+            err: 'unknown',
+            status: null
+          });
+        } else if (response.status() !== 200) {
+          console.log('invalid code');
+          return reject({
+            err: 'invalid_code',
+            status: response.status()
+          });
+        }
 
-      console.log('got pdf');
-      return response.buffer();
-    })
-    .catch((e) => {
-      console.log('failed to fetch PDF');
-      throw e;
-    });
+        console.log('got pdf');
+        return resolve({
+          err: null,
+          status: response.status(),
+          buffer: response.buffer()
+        });
+      })
+      .catch((e: Error) => {
+        console.log('failed to fetch PDF');
+        return reject({
+          err: e.message,
+          status: null
+        });
+      });
+  });
 };

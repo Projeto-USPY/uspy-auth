@@ -41,13 +41,26 @@ export const handle: HttpFunction = async (req: Request, res: Response) => {
   const code = req.params['0'];
 
   await fetchPDF(browser, code)
-    .then((buffer) => {
+    .then(async (response) => {
+      if (!response.buffer) {
+        res.setHeader('Content-Type', 'text/plain');
+        res.status(500).send('No buffer');
+        return;
+      }
+
+      const buffer = await response.buffer;
       res.setHeader('Content-Type', 'application/pdf');
       res.status(200).send(buffer);
     })
-    .catch((e) => {
-      res.setHeader('Content-Type', 'text/plain');
-      res.status(500).send(e.message);
+    .catch(async (response) => {
+      console.log(response);
+      if (response.err === 'invalid_code') {
+        res.setHeader('Content-Type', 'text/plain');
+        res.status(400).send('Invalid code');
+      } else {
+        res.setHeader('Content-Type', 'text/plain');
+        res.status(500).send(response.err);
+      }
     });
 
   await browser.close();
