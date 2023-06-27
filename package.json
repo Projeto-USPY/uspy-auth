@@ -7,7 +7,8 @@
     "gcp-build": "node node_modules/puppeteer/install.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf ./build && tsc",
-    "start": "npm run build && functions-framework --target=handle --signature-type=http --watch"
+    "start": "npm run build && functions-framework --target=handle --signature-type=http",
+    "local": "npm run build && functions-framework --target=handle --signature-type=http --watch --port 8300"
   },
   "author": "",
   "license": "ISC",
